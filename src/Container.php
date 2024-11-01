@@ -36,7 +36,7 @@ class Container
 
     /**
      * New Container constructor.
-     * 
+     *
      * @param bool $bind Whether to bind the instance to itself.
      */
     public function __construct(bool $bind = true)
@@ -72,7 +72,7 @@ class Container
 
     /**
      * Bind a contextual attribute to a handler.
-     * 
+     *
      * @param string $attribute The attribute.
      * @param Closure $handler The hadnler.
      * @return static The Container.
@@ -160,7 +160,7 @@ class Container
 
     /**
      * Clear the scoped instances.
-     * 
+     *
      * @return static The Container.
      */
     public function clearScoped(): static
