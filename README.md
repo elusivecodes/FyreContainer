@@ -66,7 +66,7 @@ Build a class name, injecting dependencies as required.
 - `$arguments` is an array containing the named arguments for the class constructor.
 
 ```php
-$container->build($className, $arguments);
+$instance = $container->build($className, $arguments);
 ```
 
 **Call**
@@ -77,7 +77,7 @@ Execute a callable using resolved dependencies.
 - `$arguments` is an array containing the named arguments for the callabck.
 
 ```php
-$container->build($callable, $arguments);
+$result = $container->build($callable, $arguments);
 ```
 
 **Clear Scoped**
@@ -96,7 +96,7 @@ Bind an alias to a class instance.
 - `$instance` is an object representing the class instance.
 
 ```php
-$container->instance($alias, $instance);
+$instance = $container->instance($alias, $instance);
 ```
 
 **Scoped**
@@ -129,5 +129,5 @@ Use an instance of a class.
 - `$arguments` is an array containing the named arguments for the class constructor.
 
 ```php
-$container->use($alias, $arguments);
+$instance = $container->use($alias, $arguments);
 ```
