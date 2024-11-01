@@ -295,6 +295,30 @@ final class ContainerTest extends TestCase
         );
     }
 
+    public function testGlobalInstance(): void
+    {
+        $container = Container::getInstance();
+
+        $this->assertInstanceOf(
+            Container::class,
+            $container
+        );
+
+        $this->assertSame(
+            $container,
+            Container::getInstance()
+        );
+
+        $container = new Container();
+
+        Container::setInstance($container);
+
+        $this->assertSame(
+            $container,
+            Container::getInstance()
+        );
+    }
+
     public function testUse(): void
     {
         $service = $this->container->use(Service::class);

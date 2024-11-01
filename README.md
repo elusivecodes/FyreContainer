@@ -7,6 +7,7 @@
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
 - [Methods](#methods)
+- [Static Methods](#static-methods)
 
 
 
@@ -130,4 +131,25 @@ Use an instance of a class.
 
 ```php
 $instance = $container->use($alias, $arguments);
+```
+
+
+## Static Methods
+
+**Get Instance**
+
+Get the global instance.
+
+```php
+$container = Container::getInstance();
+```
+
+**Set Instance**
+
+Set the global instance.
+
+- `$container` is a *Container*.
+
+```php
+Container::setInstance($container);
 ```

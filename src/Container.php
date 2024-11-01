@@ -26,6 +26,8 @@ use function str_contains;
  */
 class Container
 {
+    protected static Container $instance;
+
     protected array $bindings = [];
 
     protected array $contextualAttributes = [];
@@ -33,6 +35,26 @@ class Container
     protected array $instances = [];
 
     protected array $scoped = [];
+
+    /**
+     * Get the global instance.
+     * 
+     * @return Container The Container.
+     */
+    public static function getInstance(): Container
+    {
+        return static::$instance ??= new Container();
+    }
+
+    /**
+     * Set the global instance.
+     * 
+     * @param Container $instance The Container.
+     */
+    public static function setInstance(Container $instance): void
+    {
+        static::$instance = $instance;
+    }
 
     /**
      * New Container constructor.
