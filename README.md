@@ -78,7 +78,7 @@ Execute a callable using resolved dependencies.
 - `$arguments` is an array containing the named arguments for the callabck.
 
 ```php
-$result = $container->build($callable, $arguments);
+$result = $container->call($callable, $arguments);
 ```
 
 **Clear Scoped**
