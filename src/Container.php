@@ -38,17 +38,17 @@ class Container
 
     /**
      * Get the global instance.
-     * 
-     * @return Container The Container.
+     *
+     * @return static The Container.
      */
-    public static function getInstance(): Container
+    public static function getInstance(): static
     {
-        return static::$instance ??= new Container();
+        return static::$instance ??= new static();
     }
 
     /**
      * Set the global instance.
-     * 
+     *
      * @param Container $instance The Container.
      */
     public static function setInstance(Container $instance): void
