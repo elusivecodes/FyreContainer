@@ -20,6 +20,11 @@ class ContainerException extends RuntimeException
         return new static('Class is not instantiable: '.$className);
     }
 
+    public static function forSelfDependency(string $className): static
+    {
+        return new static('Required dependency is an instance of itself: '.$className);
+    }
+
     public static function forUnresolvedDependency(string $paramName): static
     {
         return new static('Dependency could not be resolved: '.$paramName);

@@ -305,13 +305,24 @@ class Container
                 if ($paramType instanceof ReflectionNamedType && !$paramType->isBuiltIn()) {
                     $typeName = $paramType->getName();
 
+                    $definingClass = $parameter->getDeclaringClass()->getName() ?? null;
+
                     $className = match ($typeName) {
-                        'parent' => $parameter->getDefiningClass()->getParentClass()->getName(),
-                        'self' => $parameter->getDefiningClass()->getName(),
+                        'parent' => $parameter->getDeclaringClass()->getParentClass()->getName(),
+                        'self' => $parameter->getDeclaringClass()->getName(),
                         default => $typeName
                     };
 
-                    $dependency = $this->use($className);
+                    if ($className === $definingClass) {
+                        if (!$parameter->allowsNull()) {
+                            throw ContainerException::forSelfDependency($className);
+                        }
+
+                        $dependency = null;
+                    } else {
+                        $dependency = $this->use($className);
+                    }
+
                     $dependencies[] = $dependency;
 
                     continue;
@@ -323,7 +334,7 @@ class Container
                 $dependencies[] = $parameter->getDefaultValue();
             } else if ($parameter->allowsNull()) {
                 $dependencies[] = null;
-            } else {
+            } else if (!$parameter->isVariadic()) {
                 throw ContainerException::forUnresolvedDependency($paramName);
             }
         }
