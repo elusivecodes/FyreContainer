@@ -388,6 +388,47 @@ final class ContainerTest extends TestCase
         );
     }
 
+    public function testUseScopedDependency(): void
+    {
+        $this->assertSame(
+            $this->container,
+            $this->container->scoped(InnerService::class)
+        );
+
+        $this->assertSame(
+            $this->container,
+            $this->container->singleton(OuterService::class)
+        );
+
+        $outerService = $this->container->use(OuterService::class);
+
+        $this->assertInstanceOf(OuterService::class, $outerService);
+
+        $innerService = $outerService->getInnerService();
+
+        $this->assertInstanceOf(InnerService::class, $innerService);
+
+        $this->assertSame(
+            $innerService,
+            $this->container->use(InnerService::class)
+        );
+
+        $this->assertSame(
+            $this->container,
+            $this->container->clearScoped()
+        );
+
+        $this->assertNotSame(
+            $outerService,
+            $this->container->use(OuterService::class)
+        );
+
+        $this->assertNotSame(
+            $innerService,
+            $this->container->use(InnerService::class)
+        );
+    }
+
     public function testUseShared(): void
     {
         $this->assertSame(
@@ -400,6 +441,65 @@ final class ContainerTest extends TestCase
         $this->assertInstanceOf(Service::class, $service);
 
         $this->assertSame(
+            $service,
+            $this->container->use(Service::class)
+        );
+    }
+
+    public function testUseUnscoped(): void
+    {
+        $this->assertSame(
+            $this->container,
+            $this->container->scoped(Service::class)
+        );
+
+        $service = $this->container->use(Service::class);
+
+        $this->assertInstanceOf(Service::class, $service);
+
+        $this->assertSame(
+            $service,
+            $this->container->use(Service::class)
+        );
+
+        $this->assertSame(
+            $this->container,
+            $this->container->unscoped(Service::class)
+        );
+
+        $this->assertSame(
+            $this->container,
+            $this->container->clearScoped()
+        );
+
+        $this->assertSame(
+            $service,
+            $this->container->use(Service::class)
+        );
+    }
+
+    public function testUseUnset(): void
+    {
+        $this->assertSame(
+            $this->container,
+            $this->container->singleton(Service::class)
+        );
+
+        $service = $this->container->use(Service::class);
+
+        $this->assertInstanceOf(Service::class, $service);
+
+        $this->assertSame(
+            $service,
+            $this->container->use(Service::class)
+        );
+
+        $this->assertSame(
+            $this->container,
+            $this->container->unset(Service::class)
+        );
+
+        $this->assertNotSame(
             $service,
             $this->container->use(Service::class)
         );

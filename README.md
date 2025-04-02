@@ -83,7 +83,7 @@ $result = $container->call($callable, $arguments);
 
 **Clear Scoped**
 
-Clear the scoped instances.
+Clear the scoped instances, including any dependents.
 
 ```php
 $container->clearScoped();
@@ -120,6 +120,27 @@ Bind an alias to a factory *Closure* or class name as a reusable instance.
 
 ```php
 $container->singleton($alias, $factory);
+```
+
+**Unscoped**
+
+Remove an alias from the scoped instances.
+
+- `$alias` is a string representing the alias.
+
+```php
+$container->unscoped($alias);
+```
+
+**Unset**
+
+Remove an instance and optionally any dependents.
+
+- `$alias` is a string representing the alias.
+- `$unsetDepentents` is a boolean indicating whether to unset dependents, and will default to *false*.
+
+```php
+$container->unset($alias, $unsetDependents);
 ```
 
 **Use**

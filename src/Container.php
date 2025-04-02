@@ -14,6 +14,7 @@ use Throwable;
 
 use function array_key_exists;
 use function array_merge;
+use function array_search;
 use function array_values;
 use function class_exists;
 use function explode;
@@ -31,6 +32,8 @@ class Container
     protected array $bindings = [];
 
     protected array $contextualAttributes = [];
+
+    protected array $dependencyMap = [];
 
     protected array $instances = [];
 
@@ -74,20 +77,21 @@ class Container
      * @param string $alias The class alias.
      * @param Closure|string|null $factory The factory Closure or class name.
      * @param bool $shared Whether the instance of this alias should be shared.
+     * @param bool $scoped Whether the instance of this alias is scoped.
      * @return static The Container.
      */
-    public function bind(string $alias, Closure|string|null $factory = null, bool $shared = false): static
+    public function bind(string $alias, Closure|string|null $factory = null, bool $shared = false, bool $scoped = false): static
     {
-        unset($this->instances[$alias]);
+        $this->unset($alias);
+        $this->unscoped($alias);
 
         $factory ??= $alias;
 
-        if (is_string($factory)) {
-            $className = $factory;
-            $factory = fn(array $arguments = []): object => $this->build($className, $arguments);
-        }
-
         $this->bindings[$alias] = [$factory, $shared];
+
+        if ($scoped) {
+            $this->scoped[$alias] = true;
+        }
 
         return $this;
     }
@@ -111,11 +115,12 @@ class Container
      *
      * @param string $className The class name.
      * @param array $arguments The constructor arguments.
+     * @param array &$dependencies The dependencies.
      * @return object The class instance.
      *
      * @throws ContainerException if the class is invalid or not instantiable.
      */
-    public function build(string $className, array $arguments = []): object
+    public function build(string $className, array $arguments = [], array &$dependencies = []): object
     {
         if (!class_exists($className)) {
             throw ContainerException::forInvalidClass($className);
@@ -181,14 +186,14 @@ class Container
     }
 
     /**
-     * Clear the scoped instances.
+     * Clear the scoped instances, including any dependents.
      *
      * @return static The Container.
      */
     public function clearScoped(): static
     {
-        foreach ($this->scoped as $alias) {
-            unset($this->instances[$alias]);
+        foreach ($this->scoped as $alias => $v) {
+            $this->unset($alias, true);
         }
 
         return $this;
@@ -203,6 +208,9 @@ class Container
      */
     public function instance(string $alias, object $instance): object
     {
+        $this->unset($alias);
+        $this->unscoped($alias);
+
         unset($this->bindings[$alias]);
 
         $this->instances[$alias] = $instance;
@@ -219,9 +227,7 @@ class Container
      */
     public function scoped(string $alias, Closure|string|null $factory = null): static
     {
-        $this->scoped[] = $alias;
-
-        return $this->singleton($alias, $factory);
+        return $this->bind($alias, $factory, true, true);
     }
 
     /**
@@ -234,6 +240,42 @@ class Container
     public function singleton(string $alias, Closure|string|null $factory = null): static
     {
         return $this->bind($alias, $factory, true);
+    }
+
+    /**
+     * Remove an alias from the scoped instances.
+     *
+     * @param string $alias The class alias.
+     * @return static The Container.
+     */
+    public function unscoped(string $alias): static
+    {
+        unset($this->scoped[$alias]);
+
+        return $this;
+    }
+
+    /**
+     * Remove an instance and optionally any dependents.
+     *
+     * @param string $alias The class alias.
+     * @param bool $unsetDependents Whether to unset dependents.
+     * @return static The Container.
+     */
+    public function unset(string $alias, bool $unsetDependents = false): static
+    {
+        $dependents = $unsetDependents ?
+            ($this->dependencyMap[$alias] ?? []) :
+            [];
+
+        unset($this->dependencyMap[$alias]);
+        unset($this->instances[$alias]);
+
+        foreach ($dependents as $dependent => $v) {
+            $this->unset($dependent, true);
+        }
+
+        return $this;
     }
 
     /**
@@ -255,10 +297,26 @@ class Container
 
         [$factory, $shared] = $this->bindings[$alias];
 
-        $instance = $this->call($factory, $arguments);
+        $dependencies = [];
+
+        if (is_string($factory)) {
+            $className = $factory;
+            $instance = $this->build($className, $arguments, $dependencies);
+        } else {
+            $instance = $this->call($factory, $arguments);
+        }
 
         if (!$shared || $arguments !== []) {
             return $instance;
+        }
+
+        foreach ($dependencies as $dependency) {
+            $key = array_search($dependency, $this->instances);
+
+            if ($key !== false) {
+                $this->dependencyMap[$key] ??= [];
+                $this->dependencyMap[$key][$alias] = true;
+            }
         }
 
         return $this->instances[$alias] = $instance;
