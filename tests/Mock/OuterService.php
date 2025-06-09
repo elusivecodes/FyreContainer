@@ -5,12 +5,9 @@ namespace Tests\Mock;
 
 class OuterService
 {
-    protected InnerService $innerService;
-
-    public function __construct(InnerService $innerService)
-    {
-        $this->innerService = $innerService;
-    }
+    public function __construct(
+        protected InnerService $innerService
+    ) {}
 
     public function getInnerService(): InnerService
     {

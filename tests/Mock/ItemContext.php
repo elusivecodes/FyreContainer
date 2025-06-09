@@ -10,12 +10,9 @@ use Fyre\Container\ContextualAttribute;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class ItemContext extends ContextualAttribute
 {
-    protected string $value;
-
-    public function __construct(string $value)
-    {
-        $this->value = $value;
-    }
+    public function __construct(
+        protected string $value
+    ) {}
 
     public function resolve(Container $container): Item
     {

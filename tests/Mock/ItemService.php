@@ -5,13 +5,9 @@ namespace Tests\Mock;
 
 class ItemService
 {
-    protected Item $item;
-
     public function __construct(
-        #[ItemContext('test')] Item $item
-    ) {
-        $this->item = $item;
-    }
+        #[ItemContext('test')] protected Item $item
+    ) {}
 
     public function getItem(): Item
     {
