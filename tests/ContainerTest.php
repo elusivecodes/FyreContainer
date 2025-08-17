@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use Fyre\Container\Container;
+use Fyre\Utility\Traits\MacroTrait;
 use PHPUnit\Framework\TestCase;
 use Tests\Mock\ArgumentService;
 use Tests\Mock\ContainerService;
@@ -14,6 +15,8 @@ use Tests\Mock\ItemContext;
 use Tests\Mock\ItemService;
 use Tests\Mock\OuterService;
 use Tests\Mock\Service;
+
+use function class_uses;
 
 final class ContainerTest extends TestCase
 {
@@ -316,6 +319,14 @@ final class ContainerTest extends TestCase
         $this->assertSame(
             $container,
             Container::getInstance()
+        );
+    }
+
+    public function testMacroable(): void
+    {
+        $this->assertContains(
+            MacroTrait::class,
+            class_uses(Container::class)
         );
     }
 

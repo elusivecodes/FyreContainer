@@ -5,6 +5,7 @@ namespace Fyre\Container;
 
 use Closure;
 use Fyre\Container\Exceptions\ContainerException;
+use Fyre\Utility\Traits\MacroTrait;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
@@ -27,6 +28,8 @@ use function str_contains;
  */
 class Container
 {
+    use MacroTrait;
+
     protected static Container $instance;
 
     protected array $bindings = [];
